@@ -257,7 +257,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item ms-2">
-                    <a href="login.php" class="btn btn-primary">Se connecter</a>
+                    <a href="login.php" class="btn btn-primary">Se connecter</a>       
                 </li>
             </ul>
         </div>

@@ -79,7 +79,7 @@ ob_start();
         </tbody>
     </table>
 
-    <a href="formulaireUtilisateur.php" class="btn btn-primary mt-3">
+    <a href="formulaireUser.php" class="btn btn-primary mt-3">
         <i class="fas fa-plus-circle me-2"></i>Ajouter un utilisateur
     </a>
 </div>

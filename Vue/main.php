@@ -72,39 +72,41 @@ ob_start();
     </div>
 
     <!-- Section des factures -->
-    <h3 class="mb-3 mt-4">
-        <i class="fas fa-file-invoice me-2"></i>Vos factures
-    </h3>
-    <?php if (empty($factures)): ?>
-        <p class="text-muted">Vous n'avez aucune facture.</p>
-    <?php else: ?>
-        <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle">
-                <thead class="table-dark">
+<h3 class="mb-3 mt-4">
+    <i class="fas fa-file-invoice me-2"></i>Vos factures
+</h3>
+<?php if (empty($factures)): ?>
+    <p class="text-muted">Vous n'avez aucune facture.</p>
+<?php else: ?>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Code Facture</th> <!-- Nouvelle colonne -->
+                    <th scope="col">Formation</th>
+                    <th scope="col">Montant</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($factures as $facture): ?>
                     <tr>
-                        <th scope="col">Formation</th>
-                        <th scope="col">Montant</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Actions</th>
+                        <td><?php echo htmlspecialchars($facture['code_facture']); ?></td> <!-- Afficher le code -->
+                        <td><?php echo htmlspecialchars($facture['titre']); ?></td>
+                        <td><?php echo htmlspecialchars($facture['montant_total']); ?> EUR</td>
+                        <td><?php echo htmlspecialchars($facture['date_facture']); ?></td>
+                        <td>
+                            <a href="../Factures/facture_<?php echo $facture['id']; ?>.pdf" class="btn btn-sm btn-primary" target="_blank">
+                                <i class="fas fa-download me-1"></i>Télécharger
+                            </a>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($factures as $facture): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($facture['titre']); ?></td>
-                            <td><?php echo htmlspecialchars($facture['montant_total']); ?> EUR</td>
-                            <td><?php echo htmlspecialchars($facture['date_facture']); ?></td>
-                            <td>
-                                <a href="../Factures/facture_<?php echo $facture['id']; ?>.pdf" class="btn btn-sm btn-primary" target="_blank">
-                                    <i class="fas fa-download me-1"></i>Télécharger
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    <?php endif; ?>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+<?php endif; ?>
 
     <!-- Section des paiements -->
     <h3 class="mb-3 mt-4">
@@ -128,6 +130,8 @@ ob_start();
                         <td>
                             <?php if ($paiement['statut'] === 'payé'): ?>
                                 <span class="badge bg-success">Payé</span>
+                            <?php elseif ($paiement['statut'] === 'à payer à la caisse'): ?>
+                                <span class="badge bg-warning">À payer à la caisse</span>
                             <?php else: ?>
                                 <span class="badge bg-warning">En attente</span>
                             <?php endif; ?>

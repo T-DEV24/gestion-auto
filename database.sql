@@ -104,3 +104,20 @@ INSERT INTO paiements (user_id, formation_id, montant, statut) VALUES
 -- Ajouter une facture pour l'apprenant 'clo'
 INSERT INTO factures (apprenant_id, montant_total, date_facture) VALUES
     (1, 1200.00, '2025-03-26');
+
+
+
+ALTER TABLE paiements MODIFY COLUMN statut VARCHAR(50);
+
+UPDATE paiements 
+SET statut = 'à payer à la caisse' 
+WHERE statut = 'en attente';
+
+UPDATE paiements SET statut = 'à payer à la caisse' WHERE statut = 'en attente';
+
+ALTER TABLE factures ADD COLUMN code_facture VARCHAR(20) UNIQUE;
+
+SET @counter = 0;
+UPDATE factures 
+SET code_facture = CONCAT('FACT-', YEAR(CURDATE()), '-', LPAD(@counter := @counter + 1, 4, '0'))
+WHERE code_facture IS NULL OR code_facture = '';
