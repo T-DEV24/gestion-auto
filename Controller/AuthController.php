@@ -1,5 +1,6 @@
 <?php
 require_once '../Config/connexion.php';
+require_once '../Config/auth.php';
 
 class AuthController {
     private $pdo;
@@ -34,7 +35,7 @@ class AuthController {
 
     private function login() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['username'];
+            $username = trim($_POST['username']);
             $password = $_POST['password'];
 
             $stmt = $this->pdo->prepare("SELECT * FROM users WHERE username = ?");
@@ -63,8 +64,8 @@ class AuthController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = trim($_POST['username']);
             $email = trim($_POST['email']);
-            $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-            $role = $_POST['role'];
+            $password = $_POST['password'];
+            $roleInput = $_POST['role'] ?? 'user';
 
             if (empty($username)) {
                 header('Location: ../Vue/register.php?error=Le nom d\'utilisateur est requis');
@@ -74,6 +75,17 @@ class AuthController {
             if (empty($email)) {
                 header('Location: ../Vue/register.php?error=L\'email est requis');
                 exit();
+            }
+
+            if (empty($password)) {
+                header('Location: ../Vue/register.php?error=Le mot de passe est requis');
+                exit();
+            }
+
+            $allowedRoles = ['user', 'admin'];
+            $role = 'user';
+            if (isUserAdmin() && in_array($roleInput, $allowedRoles, true)) {
+                $role = $roleInput;
             }
 
             $stmt = $this->pdo->prepare("SELECT * FROM users WHERE username = ?");
@@ -90,8 +102,10 @@ class AuthController {
                 exit();
             }
 
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
             $stmt = $this->pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$username, $email, $password, $role]);
+            $stmt->execute([$username, $email, $hashedPassword, $role]);
 
             header('Location: ../Vue/login.php?success=Utilisateur créé avec succès');
             exit();
