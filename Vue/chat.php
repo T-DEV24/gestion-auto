@@ -11,6 +11,9 @@ $chatId = isset($_GET['chat_id']) ? (int) $_GET['chat_id'] : null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        if (!verifyCsrfToken($_POST['csrf_token'] ?? null)) {
+            throw new Exception("Jeton CSRF invalide.");
+        }
         $chatId = (int) $_POST['chat_id'];
         $message = trim($_POST['message']);
         if ($message !== '') {
@@ -83,6 +86,7 @@ ob_start();
                     <div class="card-footer">
                         <form method="POST">
                             <input type="hidden" name="chat_id" value="<?php echo $chatId; ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(getCsrfToken()); ?>">
                             <div class="input-group">
                                 <input type="text" name="message" class="form-control" placeholder="Votre message...">
                                 <button class="btn btn-primary" type="submit">

@@ -14,6 +14,11 @@ class ChatController {
     }
 
     public function createChat($type, $name, array $participantIds) {
+        $allowedTypes = ['direct', 'groupe'];
+        if (!in_array($type, $allowedTypes, true)) {
+            throw new Exception("Type de chat invalide.");
+        }
+
         $stmt = $this->pdo->prepare("INSERT INTO chats (type, name) VALUES (?, ?)");
         $stmt->execute([$type, $name]);
         $chatId = $this->pdo->lastInsertId();
@@ -27,7 +32,7 @@ class ChatController {
     }
 
     public function getChatsForUser($user_id) {
-        $stmt = $this->pdo->prepare("SELECT c.*
+        $stmt = $this->pdo->prepare("SELECT c.id, c.type, c.name, c.created_at
                                      FROM chats c
                                      INNER JOIN chat_participants cp ON cp.chat_id = c.id
                                      WHERE cp.user_id = ?
@@ -36,14 +41,17 @@ class ChatController {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getChatMessages($chat_id) {
-        $stmt = $this->pdo->prepare("SELECT m.*, u.username
+    public function getChatMessages($chat_id, $limit = 50) {
+        $stmt = $this->pdo->prepare("SELECT m.id, m.message, m.created_at, u.username
                                      FROM chat_messages m
                                      INNER JOIN users u ON u.id = m.user_id
                                      WHERE m.chat_id = ?
-                                     ORDER BY m.created_at ASC");
-        $stmt->execute([$chat_id]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                     ORDER BY m.created_at DESC
+                                     LIMIT ?");
+        $stmt->bindValue(1, $chat_id, PDO::PARAM_INT);
+        $stmt->bindValue(2, (int) $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return array_reverse($stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
     public function addMessage($chat_id, $user_id, $message) {

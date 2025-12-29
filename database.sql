@@ -178,6 +178,7 @@ CREATE INDEX idx_paiements_formation_id ON paiements (formation_id);
 CREATE INDEX idx_factures_apprenant_id ON factures (apprenant_id);
 CREATE INDEX idx_chat_participants_user_id ON chat_participants (user_id);
 CREATE INDEX idx_chat_messages_chat_id ON chat_messages (chat_id);
+CREATE INDEX idx_chat_messages_user_id ON chat_messages (user_id);
 
 SET @counter = 0;
 UPDATE factures 

@@ -69,3 +69,31 @@ function requireAdmin(string $redirectIfNotAdmin = 'main.php', ?string $redirect
         exit();
     }
 }
+
+/**
+ * Génère un jeton CSRF et le stocke en session.
+ */
+function getCsrfToken(): string
+{
+    ensureSessionStarted();
+
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Vérifie un jeton CSRF reçu.
+ */
+function verifyCsrfToken(?string $token): bool
+{
+    ensureSessionStarted();
+
+    if (empty($_SESSION['csrf_token']) || $token === null) {
+        return false;
+    }
+
+    return hash_equals($_SESSION['csrf_token'], $token);
+}

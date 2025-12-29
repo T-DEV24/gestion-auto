@@ -38,6 +38,7 @@ class AuthController {
 
     private function login() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            ensureSessionStarted();
             $username = trim($_POST['username']);
             $password = $_POST['password'];
 
@@ -46,12 +47,17 @@ class AuthController {
                 exit();
             }
 
+            if ($this->hasTooManyLoginAttempts()) {
+                header('Location: ../Vue/login.php?error=Trop de tentatives. Réessayez plus tard.');
+                exit();
+            }
+
             $stmt = $this->pdo->prepare("SELECT * FROM users WHERE username = ? LIMIT 1");
             $stmt->execute([$username]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($password, $user['password'])) {
-                ensureSessionStarted();
+                $this->clearLoginAttempts();
                 session_regenerate_id(true);
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
@@ -76,6 +82,7 @@ class AuthController {
                 }
                 exit();
             } else {
+                $this->recordLoginAttempt();
                 header('Location: ../Vue/login.php?error=Nom d\'utilisateur ou mot de passe incorrect');
                 exit();
             }
@@ -176,6 +183,36 @@ class AuthController {
             'role' => $_SESSION['role'],
         ]);
         exit();
+    }
+
+    private function hasTooManyLoginAttempts(): bool {
+        $windowSeconds = 900;
+        $maxAttempts = 5;
+        $now = time();
+
+        if (empty($_SESSION['login_attempts'])) {
+            return false;
+        }
+
+        $_SESSION['login_attempts'] = array_filter(
+            $_SESSION['login_attempts'],
+            function ($timestamp) use ($now, $windowSeconds) {
+                return ($now - $timestamp) <= $windowSeconds;
+            }
+        );
+
+        return count($_SESSION['login_attempts']) >= $maxAttempts;
+    }
+
+    private function recordLoginAttempt(): void {
+        if (empty($_SESSION['login_attempts'])) {
+            $_SESSION['login_attempts'] = [];
+        }
+        $_SESSION['login_attempts'][] = time();
+    }
+
+    private function clearLoginAttempts(): void {
+        $_SESSION['login_attempts'] = [];
     }
 }
 

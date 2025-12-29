@@ -16,6 +16,9 @@ $error = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        if (!verifyCsrfToken($_POST['csrf_token'] ?? null)) {
+            throw new Exception("Jeton CSRF invalide.");
+        }
         $type = $_POST['type'];
         $nom = trim($_POST['name']);
         $formateur_id = (int) $_POST['formateur_id'];
@@ -28,6 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!$apprenantUserId || !$formateurUserId) {
             throw new Exception("Les utilisateurs associés sont requis pour créer un chat.");
+        }
+
+        if (!$formateurController->isApprenantAssignedToFormateur($formateur_id, $apprenant_id)) {
+            throw new Exception("Associez d'abord ce formateur à l'apprenant.");
         }
 
         $chatName = $nom !== '' ? $nom : 'Chat Apprenant/Formateur';
@@ -53,6 +60,7 @@ ob_start();
     <?php endif; ?>
 
     <form method="POST" class="card p-4 shadow-sm">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(getCsrfToken()); ?>">
         <div class="mb-3">
             <label class="form-label">Type de chat</label>
             <select name="type" class="form-select" required>

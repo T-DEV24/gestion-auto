@@ -41,6 +41,9 @@ ob_start();
                 <td><?php echo htmlspecialchars($formateur['specialite'] ?? ''); ?></td>
                 <td><?php echo htmlspecialchars($formateur['username'] ?? ''); ?></td>
                 <td>
+                    <a class="btn btn-sm btn-primary" href="modifierFormateur.php?id=<?php echo $formateur['id']; ?>">
+                        <i class="fas fa-edit"></i>
+                    </a>
                     <a class="btn btn-sm btn-danger" href="../Controller/FormateurController.php?action=delete&id=<?php echo $formateur['id']; ?>" onclick="return confirm('Supprimer ce formateur ?');">
                         <i class="fas fa-trash"></i>
                     </a>

@@ -13,6 +13,9 @@ $error = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        if (!verifyCsrfToken($_POST['csrf_token'] ?? null)) {
+            throw new Exception("Jeton CSRF invalide.");
+        }
         $formateur_id = (int) $_POST['formateur_id'];
         $apprenant_id = (int) $_POST['apprenant_id'];
         $formateurController->assignApprenant($formateur_id, $apprenant_id);
@@ -37,6 +40,7 @@ ob_start();
     <?php endif; ?>
 
     <form method="POST" class="card p-4 shadow-sm">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(getCsrfToken()); ?>">
         <div class="mb-3">
             <label class="form-label">Formateur</label>
             <select name="formateur_id" class="form-select" required>

@@ -14,7 +14,7 @@ class FormateurController {
     }
 
     public function getAllFormateurs() {
-        $stmt = $this->pdo->query("SELECT f.*, u.username 
+        $stmt = $this->pdo->query("SELECT f.id, f.nom, f.prenom, f.email, f.specialite, f.user_id, u.username 
                                    FROM formateurs f 
                                    LEFT JOIN users u ON f.user_id = u.id");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -46,7 +46,7 @@ class FormateurController {
     }
 
     public function getFormateurById($id) {
-        $stmt = $this->pdo->prepare("SELECT f.*, u.username 
+        $stmt = $this->pdo->prepare("SELECT f.id, f.nom, f.prenom, f.email, f.specialite, f.user_id, u.username 
                                      FROM formateurs f 
                                      LEFT JOIN users u ON f.user_id = u.id 
                                      WHERE f.id = ?");
@@ -63,6 +63,12 @@ class FormateurController {
 
         $stmt = $this->pdo->prepare("INSERT INTO apprenant_formateur (formateur_id, apprenant_id) VALUES (?, ?)");
         $stmt->execute([$formateur_id, $apprenant_id]);
+    }
+
+    public function isApprenantAssignedToFormateur($formateur_id, $apprenant_id): bool {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM apprenant_formateur WHERE formateur_id = ? AND apprenant_id = ?");
+        $stmt->execute([$formateur_id, $apprenant_id]);
+        return $stmt->fetchColumn() > 0;
     }
 
     public function handleRequest() {
