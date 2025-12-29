@@ -47,6 +47,19 @@ class AuthController {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['role'] = $user['role'];
+                $token = createJwt([
+                    'user_id' => $user['id'],
+                    'username' => $user['username'],
+                    'role' => $user['role'],
+                ]);
+                $secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+                setcookie('auth_token', $token, [
+                    'expires' => time() + JWT_TTL_SECONDS,
+                    'path' => '/',
+                    'secure' => $secure,
+                    'httponly' => true,
+                    'samesite' => 'Lax',
+                ]);
                 if ($user['role'] === 'admin') {
                     header('Location: ../Vue/dashboard.php');
                 } else {
@@ -115,6 +128,14 @@ class AuthController {
     private function logout() {
         session_start();
         session_destroy();
+        $secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+        setcookie('auth_token', '', [
+            'expires' => time() - 3600,
+            'path' => '/',
+            'secure' => $secure,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
         header('Location: ../Vue/landing.php');
         exit();
     }

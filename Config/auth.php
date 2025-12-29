@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/jwt.php';
 
 /**
  * Démarre la session si elle n'est pas déjà active.
@@ -7,6 +8,15 @@ function ensureSessionStarted(): void
 {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
+    }
+
+    if (!isset($_SESSION['user_id']) && isset($_COOKIE['auth_token'])) {
+        $payload = verifyJwt($_COOKIE['auth_token']);
+        if ($payload && isset($payload['user_id'], $payload['username'], $payload['role'])) {
+            $_SESSION['user_id'] = $payload['user_id'];
+            $_SESSION['username'] = $payload['username'];
+            $_SESSION['role'] = $payload['role'];
+        }
     }
 }
 
