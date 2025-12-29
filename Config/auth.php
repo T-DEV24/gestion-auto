@@ -40,6 +40,19 @@ function isUserAdmin(): bool
 }
 
 /**
+ * Vérifie si l'utilisateur est connecté.
+ */
+function requireLogin(string $redirectIfNotAuthenticated = 'login.php'): void
+{
+    ensureSessionStarted();
+
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: ' . $redirectIfNotAuthenticated);
+        exit();
+    }
+}
+
+/**
  * Redirige l'utilisateur si la session n'est pas valide ou si le rôle n'est pas admin.
  */
 function requireAdmin(string $redirectIfNotAdmin = 'main.php', ?string $redirectIfNotAuthenticated = null): void
