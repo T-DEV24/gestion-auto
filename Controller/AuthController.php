@@ -38,12 +38,12 @@ class AuthController {
             $username = trim($_POST['username']);
             $password = $_POST['password'];
 
-            $stmt = $this->pdo->prepare("SELECT * FROM users WHERE username = ?");
+            $stmt = $this->pdo->prepare("SELECT * FROM users WHERE username = ? LIMIT 1");
             $stmt->execute([$username]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($password, $user['password'])) {
-                session_start();
+                ensureSessionStarted();
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['role'] = $user['role'];
@@ -101,14 +101,14 @@ class AuthController {
                 $role = $roleInput;
             }
 
-            $stmt = $this->pdo->prepare("SELECT * FROM users WHERE username = ?");
+            $stmt = $this->pdo->prepare("SELECT 1 FROM users WHERE username = ? LIMIT 1");
             $stmt->execute([$username]);
             if ($stmt->fetch()) {
                 header('Location: ../Vue/register.php?error=Nom d\'utilisateur déjà pris');
                 exit();
             }
 
-            $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ?");
+            $stmt = $this->pdo->prepare("SELECT 1 FROM users WHERE email = ? LIMIT 1");
             $stmt->execute([$email]);
             if ($stmt->fetch()) {
                 header('Location: ../Vue/register.php?error=Email déjà utilisé');
@@ -126,7 +126,8 @@ class AuthController {
     }
 
     private function logout() {
-        session_start();
+        ensureSessionStarted();
+        $_SESSION = [];
         session_destroy();
         $secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
         setcookie('auth_token', '', [

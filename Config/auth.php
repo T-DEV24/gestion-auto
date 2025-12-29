@@ -16,6 +16,15 @@ function ensureSessionStarted(): void
             $_SESSION['user_id'] = $payload['user_id'];
             $_SESSION['username'] = $payload['username'];
             $_SESSION['role'] = $payload['role'];
+        } else {
+            $secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+            setcookie('auth_token', '', [
+                'expires' => time() - 3600,
+                'path' => '/',
+                'secure' => $secure,
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]);
         }
     }
 }
