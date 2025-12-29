@@ -27,6 +27,9 @@ class AuthController {
             case 'logout':
                 $this->logout();
                 break;
+            case 'me':
+                $this->currentUser();
+                break;
             default:
                 header('Location: ../Vue/landing.php');
                 exit();
@@ -38,12 +41,18 @@ class AuthController {
             $username = trim($_POST['username']);
             $password = $_POST['password'];
 
+            if ($username === '' || $password === '') {
+                header('Location: ../Vue/login.php?error=Nom d\'utilisateur ou mot de passe requis');
+                exit();
+            }
+
             $stmt = $this->pdo->prepare("SELECT * FROM users WHERE username = ? LIMIT 1");
             $stmt->execute([$username]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($password, $user['password'])) {
                 ensureSessionStarted();
+                session_regenerate_id(true);
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['role'] = $user['role'];
@@ -90,8 +99,18 @@ class AuthController {
                 exit();
             }
 
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                header('Location: ../Vue/register.php?error=Format d\'email invalide');
+                exit();
+            }
+
             if (empty($password)) {
                 header('Location: ../Vue/register.php?error=Le mot de passe est requis');
+                exit();
+            }
+
+            if (strlen($password) < 8) {
+                header('Location: ../Vue/register.php?error=Le mot de passe doit contenir au moins 8 caractères');
                 exit();
             }
 
@@ -138,6 +157,24 @@ class AuthController {
             'samesite' => 'Lax',
         ]);
         header('Location: ../Vue/landing.php');
+        exit();
+    }
+
+    private function currentUser() {
+        ensureSessionStarted();
+        header('Content-Type: application/json; charset=utf-8');
+
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Non authentifié']);
+            exit();
+        }
+
+        echo json_encode([
+            'id' => $_SESSION['user_id'],
+            'username' => $_SESSION['username'],
+            'role' => $_SESSION['role'],
+        ]);
         exit();
     }
 }

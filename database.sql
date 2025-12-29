@@ -113,9 +113,18 @@ UPDATE paiements
 SET statut = 'à payer à la caisse' 
 WHERE statut = 'en attente';
 
-UPDATE paiements SET statut = 'à payer à la caisse' WHERE statut = 'en attente';
-
 ALTER TABLE factures ADD COLUMN code_facture VARCHAR(20) UNIQUE;
+
+CREATE INDEX idx_users_username ON users (username);
+CREATE INDEX idx_users_email ON users (email);
+CREATE INDEX idx_users_role ON users (role);
+CREATE INDEX idx_apprenants_user_id ON apprenants (user_id);
+CREATE INDEX idx_apprenants_email ON apprenants (email);
+CREATE INDEX idx_inscriptions_user_id ON inscriptions (user_id);
+CREATE INDEX idx_inscriptions_formation_id ON inscriptions (formation_id);
+CREATE INDEX idx_paiements_user_id ON paiements (user_id);
+CREATE INDEX idx_paiements_formation_id ON paiements (formation_id);
+CREATE INDEX idx_factures_apprenant_id ON factures (apprenant_id);
 
 SET @counter = 0;
 UPDATE factures 
