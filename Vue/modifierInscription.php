@@ -1,10 +1,6 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header('Location: login.php');
-    exit();
-}
+require_once '../Config/auth.php';
+requireAdmin('login.php');
 
 require_once '../Controller/InscriptionController.php';
 require_once '../Controller/ApprenantController.php';
