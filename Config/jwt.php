@@ -1,6 +1,9 @@
 <?php
 
-define('JWT_SECRET', getenv('JWT_SECRET') ?: 'change-me');
+if (!getenv('JWT_SECRET')) {
+    throw new RuntimeException('JWT_SECRET manquant. Définissez une clé secrète forte.');
+}
+define('JWT_SECRET', getenv('JWT_SECRET'));
 define('JWT_TTL_SECONDS', 60 * 60 * 4);
 define('REFRESH_TOKEN_TTL_SECONDS', 60 * 60 * 24 * 14);
 

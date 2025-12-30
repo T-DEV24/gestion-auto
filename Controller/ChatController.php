@@ -61,7 +61,13 @@ class ChatController {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getChatMessages($chat_id, $limit = 50, $offset = 0) {
+    public function getChatMessages($chat_id, $user_id, $limit = 50, $offset = 0) {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM chat_participants WHERE chat_id = ? AND user_id = ?");
+        $stmt->execute([$chat_id, $user_id]);
+        if ($stmt->fetchColumn() == 0) {
+            throw new Exception("Accès refusé à ce chat.");
+        }
+
         $stmt = $this->pdo->prepare("SELECT m.id, m.message, m.created_at, u.username
                                      FROM chat_messages m
                                      INNER JOIN users u ON u.id = m.user_id

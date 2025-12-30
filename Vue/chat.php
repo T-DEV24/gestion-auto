@@ -33,7 +33,7 @@ $totalMessages = $chatId ? $controller->getChatMessageCount($chatId) : 0;
 $totalPages = $chatId ? (int) ceil($totalMessages / $limit) : 0;
 $page = $totalPages > 0 ? min($page, $totalPages) : 1;
 $offset = ($page - 1) * $limit;
-$messages = $chatId ? $controller->getChatMessages($chatId, $limit, $offset) : [];
+$messages = $chatId ? $controller->getChatMessages($chatId, $_SESSION['user_id'], $limit, $offset) : [];
 $participants = $chatId ? $controller->getChatParticipants($chatId) : [];
 
 ob_start();
