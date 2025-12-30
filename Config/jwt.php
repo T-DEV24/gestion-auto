@@ -1,9 +1,13 @@
 <?php
 
-if (!getenv('JWT_SECRET')) {
+$jwtSecret = getenv('JWT_SECRET');
+$appEnv = getenv('APP_ENV') ?: 'development';
+
+if (!$jwtSecret && $appEnv === 'production') {
     throw new RuntimeException('JWT_SECRET manquant. Définissez une clé secrète forte.');
 }
-define('JWT_SECRET', getenv('JWT_SECRET'));
+
+define('JWT_SECRET', $jwtSecret ?: 'dev-secret-change-me');
 define('JWT_TTL_SECONDS', 60 * 60 * 4);
 define('REFRESH_TOKEN_TTL_SECONDS', 60 * 60 * 24 * 14);
 
