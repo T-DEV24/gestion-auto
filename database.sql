@@ -52,6 +52,28 @@ CREATE TABLE personnel (
                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Table des formateurs
+CREATE TABLE formateurs (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            user_id INT NULL,
+                            nom VARCHAR(100) NOT NULL,
+                            prenom VARCHAR(100) NOT NULL,
+                            email VARCHAR(191) UNIQUE NOT NULL,
+                            specialite VARCHAR(255),
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Association apprenants/formateurs
+CREATE TABLE apprenant_formateur (
+                                     apprenant_id INT NOT NULL,
+                                     formateur_id INT NOT NULL,
+                                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                     PRIMARY KEY (apprenant_id, formateur_id),
+                                     FOREIGN KEY (apprenant_id) REFERENCES apprenants(id) ON DELETE CASCADE,
+                                     FOREIGN KEY (formateur_id) REFERENCES formateurs(id) ON DELETE CASCADE
+);
+
 -- Table des paiements
 CREATE TABLE paiements (
                            id INT AUTO_INCREMENT PRIMARY KEY,
@@ -72,6 +94,33 @@ CREATE TABLE factures (
                           date_facture DATE NOT NULL,
                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                           FOREIGN KEY (apprenant_id) REFERENCES apprenants(id) ON DELETE CASCADE
+);
+
+-- Table des chats
+CREATE TABLE chats (
+                       id INT AUTO_INCREMENT PRIMARY KEY,
+                       type ENUM('direct', 'groupe') NOT NULL,
+                       name VARCHAR(255) NULL,
+                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE chat_participants (
+                                   chat_id INT NOT NULL,
+                                   user_id INT NOT NULL,
+                                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                   PRIMARY KEY (chat_id, user_id),
+                                   FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE,
+                                   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE chat_messages (
+                               id INT AUTO_INCREMENT PRIMARY KEY,
+                               chat_id INT NOT NULL,
+                               user_id INT NOT NULL,
+                               message TEXT NOT NULL,
+                               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                               FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE,
+                               FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Insertion d'un utilisateur admin par défaut
@@ -113,9 +162,23 @@ UPDATE paiements
 SET statut = 'à payer à la caisse' 
 WHERE statut = 'en attente';
 
-UPDATE paiements SET statut = 'à payer à la caisse' WHERE statut = 'en attente';
-
 ALTER TABLE factures ADD COLUMN code_facture VARCHAR(20) UNIQUE;
+
+CREATE INDEX idx_users_username ON users (username);
+CREATE INDEX idx_users_email ON users (email);
+CREATE INDEX idx_users_role ON users (role);
+CREATE INDEX idx_apprenants_user_id ON apprenants (user_id);
+CREATE INDEX idx_apprenants_email ON apprenants (email);
+CREATE INDEX idx_apprenant_formateur_formateur_id ON apprenant_formateur (formateur_id);
+CREATE INDEX idx_formateurs_user_id ON formateurs (user_id);
+CREATE INDEX idx_inscriptions_user_id ON inscriptions (user_id);
+CREATE INDEX idx_inscriptions_formation_id ON inscriptions (formation_id);
+CREATE INDEX idx_paiements_user_id ON paiements (user_id);
+CREATE INDEX idx_paiements_formation_id ON paiements (formation_id);
+CREATE INDEX idx_factures_apprenant_id ON factures (apprenant_id);
+CREATE INDEX idx_chat_participants_user_id ON chat_participants (user_id);
+CREATE INDEX idx_chat_messages_chat_id ON chat_messages (chat_id);
+CREATE INDEX idx_chat_messages_user_id ON chat_messages (user_id);
 
 SET @counter = 0;
 UPDATE factures 

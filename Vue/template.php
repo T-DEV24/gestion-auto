@@ -193,6 +193,7 @@
                                 <a class="optional-item" href="formulaireFormation.php"><i class="fas fa-chalkboard-teacher"></i>Formation</a>
                                 <a class="optional-item" href="formulaireInscription.php"><i class="fas fa-clipboard-list"></i>Inscription</a>
                                 <a class="optional-item" href="formulairePersonnel.php"><i class="fas fa-user-tie"></i>Personnel</a>
+                                <a class="optional-item" href="formulaireFormateur.php"><i class="fas fa-chalkboard-teacher"></i>Formateur</a>
                                 <a class="optional-item" href="formulaireUser.php"><i class="fas fa-user-plus"></i>Utilisateur</a>
                                 <a class="optional-item" href="formulairePaiement.php"><i class="fas fa-money-bill-wave"></i>Paiement</a>
                             </div>
@@ -207,9 +208,13 @@
                                 <a class="optional-item" href="listeFormation.php"><i class="fas fa-book"></i>Formations</a>
                                 <a class="optional-item" href="listeInscription.php"><i class="fas fa-clipboard-check"></i>Inscriptions</a>
                                 <a class="optional-item" href="listePersonnel.php"><i class="fas fa-id-card"></i>Personnels</a>
+                                <a class="optional-item" href="listeFormateur.php"><i class="fas fa-chalkboard-teacher"></i>Formateurs</a>
                                 <a class="optional-item" href="listeUser.php"><i class="fas fa-user-shield"></i>Utilisateurs</a>
                                 <a class="optional-item" href="listePaiement.php"><i class="fas fa-file-invoice-dollar"></i>Paiements</a>
                             </div>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="chat.php">Messagerie</a>
                         </li>
                     <?php else: ?>
                         <li class="nav-item">
@@ -217,6 +222,9 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">Mes factures</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="chat.php">Messagerie</a>
                         </li>
                     <?php endif; ?>
                 <?php endif; ?>
