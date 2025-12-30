@@ -61,6 +61,24 @@ class ChatController {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAllChatSummaries() {
+        $stmt = $this->pdo->query("SELECT c.id, c.type, c.name, c.created_at,
+                                          lm.message AS last_message,
+                                          lm.created_at AS last_message_at,
+                                          COUNT(cp.user_id) AS participant_count
+                                   FROM chats c
+                                   LEFT JOIN chat_participants cp ON cp.chat_id = c.id
+                                   LEFT JOIN chat_messages lm ON lm.id = (
+                                       SELECT m.id FROM chat_messages m
+                                       WHERE m.chat_id = c.id
+                                       ORDER BY m.created_at DESC
+                                       LIMIT 1
+                                   )
+                                   GROUP BY c.id
+                                   ORDER BY COALESCE(lm.created_at, c.created_at) DESC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getChatMessages($chat_id, $user_id, $limit = 50, $offset = 0) {
         $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM chat_participants WHERE chat_id = ? AND user_id = ?");
         $stmt->execute([$chat_id, $user_id]);
@@ -105,6 +123,28 @@ class ChatController {
                                      WHERE cp.chat_id = ?");
         $stmt->execute([$chat_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function addParticipant($chat_id, $user_id) {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM users WHERE id = ?");
+        $stmt->execute([$user_id]);
+        if ($stmt->fetchColumn() == 0) {
+            throw new Exception("Utilisateur introuvable.");
+        }
+
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM chat_participants WHERE chat_id = ? AND user_id = ?");
+        $stmt->execute([$chat_id, $user_id]);
+        if ($stmt->fetchColumn() > 0) {
+            throw new Exception("Utilisateur déjà dans ce chat.");
+        }
+
+        $stmt = $this->pdo->prepare("INSERT INTO chat_participants (chat_id, user_id) VALUES (?, ?)");
+        $stmt->execute([$chat_id, $user_id]);
+    }
+
+    public function removeParticipant($chat_id, $user_id) {
+        $stmt = $this->pdo->prepare("DELETE FROM chat_participants WHERE chat_id = ? AND user_id = ?");
+        $stmt->execute([$chat_id, $user_id]);
     }
 }
 ?>
