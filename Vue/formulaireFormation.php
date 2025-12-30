@@ -1,10 +1,6 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header('Location: main.php');
-    exit();
-}
+require_once '../Config/auth.php';
+requireAdmin();
 
 require_once '../Controller/FormationController.php';
 $controller = new FormationController();

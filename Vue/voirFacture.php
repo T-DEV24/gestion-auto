@@ -1,11 +1,6 @@
 <?php
-session_start();
-
-// Vérifier si l'utilisateur est connecté et est un admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header('Location: login.php');
-    exit();
-}
+require_once '../Config/auth.php';
+requireAdmin('login.php');
 
 $file = isset($_GET['file']) ? $_GET['file'] : '';
 $facturePath = '../Asset/templates/' . $file;
